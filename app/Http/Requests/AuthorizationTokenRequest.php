@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Traits\Helpers;
 use Illuminate\Support\Str;
 use App\Models\AuthorizationToken;
 use Exception;
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\Log;
 
 class AuthorizationTokenRequest extends FormRequest
 {
+    use Helpers;
+
     /**
      * Determine if the user is authorized to make this request.
      */

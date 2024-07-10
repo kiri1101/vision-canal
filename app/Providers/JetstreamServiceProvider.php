@@ -2,18 +2,25 @@
 
 namespace App\Providers;
 
-use App\Actions\Jetstream\AddTeamMember;
+use App\Http\Traits\Helpers;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Laravel\Fortify\Fortify;
+use Laravel\Jetstream\Jetstream;
+use Illuminate\Support\Facades\Hash;
 use App\Actions\Jetstream\CreateTeam;
 use App\Actions\Jetstream\DeleteTeam;
 use App\Actions\Jetstream\DeleteUser;
+use Illuminate\Support\ServiceProvider;
+use App\Actions\Jetstream\AddTeamMember;
+use App\Actions\Jetstream\UpdateTeamName;
 use App\Actions\Jetstream\InviteTeamMember;
 use App\Actions\Jetstream\RemoveTeamMember;
-use App\Actions\Jetstream\UpdateTeamName;
-use Illuminate\Support\ServiceProvider;
-use Laravel\Jetstream\Jetstream;
 
 class JetstreamServiceProvider extends ServiceProvider
 {
+    use Helpers;
+
     /**
      * Register any application services.
      */
@@ -36,6 +43,20 @@ class JetstreamServiceProvider extends ServiceProvider
         Jetstream::removeTeamMembersUsing(RemoveTeamMember::class);
         Jetstream::deleteTeamsUsing(DeleteTeam::class);
         Jetstream::deleteUsersUsing(DeleteUser::class);
+
+        Fortify::authenticateUsing(function (Request $request) {
+
+            $phone =  $this->removeSpaceBetweenStringChar(trim($request->input('phone')));
+
+            $user = User::where('phone', $phone)->first();
+
+            if (
+                collect($user)->isNotEmpty() && $user->isAdmin() &&
+                Hash::check($request->password, $user->password)
+            ) {
+                return $user;
+            }
+        });
     }
 
     /**

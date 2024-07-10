@@ -7,6 +7,8 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import { vMaska } from 'maska';
+
 
 const form = useForm({
     name: '',
@@ -42,9 +44,9 @@ const submit = () => {
             </div>
 
             <div>
-                <InputLabel for="phone" value="Name" />
-                <TextInput id="phone" v-model="form.phone" type="text" class="block w-full mt-1" required autofocus
-                    autocomplete="phone" />
+                <InputLabel for="phone" value="Phone Number" />
+                <TextInput id="phone" v-model="form.phone" type="text" class="block w-full mt-1" required
+                    autocomplete="phone" v-maska data-maska="6 ## ## ## ##" />
                 <InputError class="mt-2" :message="form.errors.phone" />
             </div>
 
@@ -78,7 +80,7 @@ const submit = () => {
                             I agree to the <a target="_blank" :href="route('terms.show')"
                                 class="text-sm text-gray-600 underline rounded-md hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Terms
                                 of Service</a> and <a target="_blank" :href="route('policy.show')"
-                                class="text-sm text-gray-600 underline rounded-md hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Privacy
+                                class="text-sm text-gray-600 underline rounded-md hover:text-gray-900 focus:outline-none">Privacy
                                 Policy</a>
                         </div>
                     </div>
@@ -86,15 +88,17 @@ const submit = () => {
                 </InputLabel>
             </div>
 
-            <div class="flex items-center justify-end mt-4">
-                <Link :href="route('login')"
-                    class="text-sm text-gray-600 underline rounded-md hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Already registered?
-                </Link>
-
-                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+            <div class="grid mt-6">
+                <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                     Register
                 </PrimaryButton>
+            </div>
+
+            <div class="text-center">
+                <Link :href="route('login')"
+                    class="text-sm tracking-tight text-gray-600 rounded-md hover:underline hover:text-gray-900 hover:font-semibold focus:outline-none">
+                Already have an account
+                </Link>
             </div>
         </form>
     </AuthenticationCard>

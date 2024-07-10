@@ -15,7 +15,9 @@ class Setting extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'value'
+        'home_page_video',
+        'whatsapp',
+        'facebook',
+        'instagram'
     ];
 }

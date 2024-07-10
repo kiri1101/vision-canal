@@ -1,8 +1,12 @@
 <?php
 
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Foundation\Application;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\SettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,22 +19,39 @@ use Inertia\Inertia;
 |
 */
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
-
+// Route::get('/', function () {
+//     return Inertia::render('Welcome', [
+//         'canLogin' => Route::has('login'),
+//         'canRegister' => Route::has('register'),
+//         'laravelVersion' => Application::VERSION,
+//         'phpVersion' => PHP_VERSION,
+//     ]);
+// });
 
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+    Route::controller(DashboardController::class)->group(function () {
+        Route::get('/dashboard', 'index')->name('dashboard');
+        Route::post('/cash-in', 'cashIn')->name('deposit.store');
+        Route::post('/cash-out', 'cashOut')->name('withdraw.store');
+    });
+
+    Route::controller(UserController::class)->prefix('users')->name('users.')->group(function () {
+        Route::get('/list', 'index')->name('index');
+        Route::post('/new', 'createUser')->name('create.new');
+        Route::post('/update', 'updateUser')->name('update.account');
+        Route::post('{user:uuid}/delete', 'deleteUser')->name('delete.account');
+    });
+
+    Route::controller(SettingController::class)->prefix('settings')->name('settings.')->group(function () {
+        Route::get('/list', 'index')->name('index');
+        Route::post('/update/social-link', 'updateSocialLink')->name('store.social');
+        Route::post('/articles/{article:uuid}/upload', 'articlesFileUpload')->name('article.upload');
+        Route::post('/articles/{article:uuid}/update', 'updateArticle')->name('store.article');
+    });
 });
+
+Route::redirect('/', '/login');

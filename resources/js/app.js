@@ -5,6 +5,11 @@ import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
+import PrimeVue from 'primevue/config';
+import 'primevue/resources/themes/aura-light-green/theme.css';
+import 'primeicons/primeicons.css';
+import ToastService from 'primevue/toastservice';
+import VueApexCharts from "vue3-apexcharts";
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -15,9 +20,15 @@ createInertiaApp({
         return createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
+            .use(PrimeVue)
+            .use(ToastService)
+            .use(VueApexCharts)
             .mount(el);
     },
     progress: {
-        color: '#4B5563',
+        delay: 250,
+        color: '#000',
+        includeCSS: true,
+        showSpinner: true,
     },
 });

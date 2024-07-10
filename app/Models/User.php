@@ -2,13 +2,18 @@
 
 namespace App\Models;
 
+use App\Models\Account;
 use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Jetstream\HasProfilePhoto;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Notifications\Notification;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -21,6 +26,7 @@ class User extends Authenticatable
     use HasTeams;
     use Notifiable;
     use TwoFactorAuthenticatable;
+    use SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -28,7 +34,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'uuid', 'name', 'token_id', 'phone', 'email', 'password',
+        'uuid', 'name', 'token_id', 'phone', 'is_admin', 'email', 'password',
     ];
 
     /**
@@ -50,6 +56,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_admin' => 'boolean'
     ];
 
     /**
@@ -81,5 +88,76 @@ class User extends Authenticatable
     public function token(): BelongsTo
     {
         return $this->belongsTo(AuthorizationToken::class, 'id', 'token_id');
+    }
+
+    /**
+     * Get all of the subscriptions for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    /**
+     * Get all of the subscriptionRenewals for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function subscriptionRenewals(): HasMany
+    {
+        return $this->hasMany(RenewSubscription::class);
+    }
+
+    /**
+     * Get the account associated with the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function account(): HasOne
+    {
+        return $this->hasOne(Account::class);
+    }
+
+    /**
+     * Get all of the orders for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    // SCOPES
+    public function scopeIsActive(Builder $query)
+    {
+        $query->where('is_active', true);
+    }
+
+    public function scopeIsAdmin(Builder $query)
+    {
+        $query->where('is_admin', true);
+    }
+
+    public function scopeIsNotAdmin(Builder $query)
+    {
+        $query->where('is_admin', false);
+    }
+
+    public function scopeSuperAdmin(Builder $query)
+    {
+        $query->where('id', 1);
+    }
+
+    public function scopeUserByUUID(Builder $query, string $uuid)
+    {
+        $query->where('uuid', $uuid);
+    }
+
+    public function scopeUserWithPhone(Builder $query, string $phone)
+    {
+        $query->where('phone', $phone);
     }
 }

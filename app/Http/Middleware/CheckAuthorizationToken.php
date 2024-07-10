@@ -2,14 +2,18 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\AuthorizationToken;
 use Closure;
+use App\Http\Traits\Helpers;
 use Illuminate\Http\Request;
+use App\Models\AuthorizationToken;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Lang;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckAuthorizationToken
 {
+    use Helpers;
+
     /**
      * Handle an incoming request.
      *
@@ -29,14 +33,18 @@ class CheckAuthorizationToken
         $token = AuthorizationToken::isValid($request->header('Authorization-Token'))->isActive()->first();
 
         // Check if authorization token submitted is valid and active
-        if ($token->count() === 0) {
+        if (!empty($token)) {
+            return $next($request->merge(['deviceToken' => $token]));
+        } else {
+            Log::info('device authentification failed', [
+                'ip' => $request->ip()
+            ]);
+
             return response()->json([
                 'message' => Lang::get('messages.error.server_error.inactive_authorization', [], 'en'),
                 'code' => 500,
                 'data' => []
             ]);
         }
-
-        return $next($request->merge(['deviceToken' => $token]));
     }
 }

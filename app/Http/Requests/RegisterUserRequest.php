@@ -2,15 +2,16 @@
 
 namespace App\Http\Requests;
 
-use App\Http\Resources\UserResource;
-use App\Http\Traits\Helpers;
 use Exception;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Support\Str;
+use App\Http\Traits\Helpers;
 use Illuminate\Http\JsonResponse;
 use App\Models\AuthorizationToken;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Foundation\Http\FormRequest;
@@ -18,6 +19,13 @@ use Illuminate\Foundation\Http\FormRequest;
 class RegisterUserRequest extends FormRequest
 {
     use Helpers;
+
+    /**
+     * Indicates if the validator should stop on the first rule failure.
+     *
+     * @var bool
+     */
+    protected $stopOnFirstFailure = true;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -35,10 +43,12 @@ class RegisterUserRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'country' => 'required|string|exists:countries,slug',
             'name' => 'required|string|max:255',
             'town' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'phone' => 'required|string',
+            'password' => 'required|string|confirmed|min:4',
+            'password_confirmation' => 'required|string|min:4',
+            'phone' => 'required|string|unique:users,phone',
             'mail' => str_word_count($this->input('mail')) > 0 ? 'required|email' : '',
             'promo' => str_word_count($this->input('promo')) > 0 ? 'required|string|max:255' : '',
             'terms' => 'required|Boolean'
@@ -49,36 +59,46 @@ class RegisterUserRequest extends FormRequest
     {
         DB::beginTransaction();
 
+        $phone = $this->removeSpaceBetweenStringChar(trim($this->input('phone')));
+
         if ($this->input('terms')) {
             try {
-                $user = User::updateOrCreate(
-                    [
-                        'phone' => $this->removeSpaceBetweenStringChar(trim($this->input('phone'))),
-                    ],
-                    [
-                        'token_id' => $this->deviceToken->id,
-                        'uuid' => Str::uuid(),
-                        'name' => trim($this->input('name')),
-                        'phone' => $this->removeSpaceBetweenStringChar(trim($this->input('phone')))
-                    ]
-                );
+                $user = User::userWithPhone($phone)->get();
 
-                $user->profile()->create([
-                    'address' => trim($this->input('address')),
-                    'state' => trim($this->input('town')),
-                    'agent' => $this->userAgent(),
-                    'ip_address' => $this->ip(),
-                    'promo_code' => $this->has('promo') ? trim($this->input('promo')) : null
-                ]);
+                if ($user->count() > 0) {
+                    return $this->errorResponse(Lang::get('messages.error.server_error.user_account_exists'));
+                } else {
+                    $user = DB::transaction(function () use ($phone) {
+                        return tap(User::create([
+                            'uuid' => Str::uuid(),
+                            'token_id' => $this->deviceToken->id,
+                            'name' => trim($this->input('name')),
+                            'phone' => $phone,
+                            'email' => $this->has('mail') ? $this->input('mail') : null,
+                            'password' => Hash::make($this->input('password')),
+                            'is_admin' => false
+                        ]), function (User $user) {
+                            $this->createTeam($user);
+                            $user->profile()->create([
+                                'state' => trim($this->input('town')),
+                                'country' => $this->input('country'),
+                                'agent' => $this->userAgent(),
+                                'ip_address' => $this->ip(),
+                                'promo_code' => $this->has('promo') ? trim($this->input('promo')) : null
+                            ]);
+                            $user->account()->create([]);
+                        });
+                    });
 
-                $token = $user->createToken($this->userAgent())->plainTextToken;
+                    $token = $user->createToken($this->userAgent())->plainTextToken;
 
-                DB::commit();
+                    DB::commit();
 
-                return $this->successResponse(Lang::get('messages.success.user_created', [], 'en'), [
-                    'token' => $token,
-                    'user' => new UserResource($user)
-                ]);
+                    return $this->successResponse(Lang::get('messages.success.user_created', [], 'en'), [
+                        'token' => $token,
+                        'user' => new UserResource($user)
+                    ]);
+                }
             } catch (Exception $e) {
                 DB::rollBack();
 
@@ -91,5 +111,17 @@ class RegisterUserRequest extends FormRequest
         } else {
             return $this->errorResponse('Please read and confirm our terms and conditions to proceed');
         }
+    }
+
+    /**
+     * Create a personal team for the user.
+     */
+    protected function createTeam(User $user): void
+    {
+        $user->ownedTeams()->save(Team::forceCreate([
+            'user_id' => $user->id,
+            'name' => explode(' ', $user->name, 2)[0] . "'s Team",
+            'personal_team' => true,
+        ]));
     }
 }

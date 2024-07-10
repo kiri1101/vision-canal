@@ -7,4 +7,5 @@ Route::post('get-authorization', [SettingController::class, 'getAuthorization'])
 
 Route::controller(SettingController::class)->middleware(['auth.token'])->group(function () {
     Route::get('/all-settings', 'getSettings');
+    Route::get('/users/{user:uuid}/transactions', 'transactionList');
 });
