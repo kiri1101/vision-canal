@@ -61,7 +61,10 @@ class SettingController extends BaseController
                 'method_banner_alt' => $payment->img_alt
             ]),
             'settings' => [
-                'home_video_link' => $setting->value('home_page_video')
+                'home_video_link' => $setting->value('home_page_video'),
+                'whatsappLink' => is_null($setting->whatsapp) ? '' : $setting->value('whatsapp'),
+                'facebookLink' => is_null($setting->facebook) ? '' : $setting->value('facebook'),
+                'instagramLink' => is_null($setting->instagram) ? '' : $setting->value('instagram')
             ],
             'articles' => Article::all()->map(fn ($article) => [
                 'id' => $article->uuid,
