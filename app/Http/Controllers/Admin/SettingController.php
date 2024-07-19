@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AdminSubscriptionRenewalRequest;
+use App\Http\Requests\AdminSubscriptionRequest;
+use App\Http\Requests\AdminTransactionsRequest;
 use App\Http\Requests\ArticleFileUploadRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use App\Http\Requests\UpdateSocialLinkRequest;
@@ -47,5 +50,20 @@ class SettingController extends Controller
     public function updateArticle(Article $article, UpdateArticleRequest $request): RedirectResponse
     {
         return $request->store($article);
+    }
+
+    public function transactionList(AdminTransactionsRequest $request)
+    {
+        return $request->search();
+    }
+
+    public function subscriptionList(AdminSubscriptionRequest $request)
+    {
+        return $request->search();
+    }
+
+    public function subscriptionRenewalList(AdminSubscriptionRenewalRequest $request)
+    {
+        return $request->search();
     }
 }

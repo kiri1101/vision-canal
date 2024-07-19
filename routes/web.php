@@ -51,6 +51,9 @@ Route::middleware([
         Route::post('/update/social-link', 'updateSocialLink')->name('store.social');
         Route::post('/articles/{article:uuid}/upload', 'articlesFileUpload')->name('article.upload');
         Route::post('/articles/{article:uuid}/update', 'updateArticle')->name('store.article');
+        Route::post('/transactions/list', 'transactionList')->name('transactions.list');
+        Route::post('/subscriptions/list', 'subscriptionList')->name('subscriptions.list');
+        Route::post('/subscriptions/renewal/list', 'subscriptionRenewalList')->name('subscriptions.renewals');
     });
 });
 

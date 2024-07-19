@@ -8,6 +8,7 @@ use App\Http\Traits\Helpers;
 use Illuminate\Http\JsonResponse;
 use App\Http\Resources\UserResource;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Hash;
 
 class UpdateUserInfosRequest extends FormRequest
 {
@@ -37,7 +38,9 @@ class UpdateUserInfosRequest extends FormRequest
             'country' => strlen($this->input('country')) > 0 ? 'required|string' : '',
             'profession' => strlen($this->input('profession')) > 0 ? 'required|string' : '',
             'profile_pic_path' => strlen($this->input('profile_pic_path')) > 0 ? 'required|string' : '',
-            'religion' => strlen($this->input('religion')) > 0 ? 'required|string' : ''
+            'religion' => strlen($this->input('religion')) > 0 ? 'required|string' : '',
+            'pwd_code' => strlen($this->input('pwd_code')) > 0 ? 'required|string|confirmed|min:4' : '',
+            'pwd_code_confirmation' => strlen($this->input('pwd_code_confirmation')) > 0 ? 'required|string|min:4' : ''
         ];
     }
 
@@ -49,7 +52,8 @@ class UpdateUserInfosRequest extends FormRequest
                 'name' => $this->input('name'),
                 'phone' => $this->removeSpaceBetweenStringChar(trim($this->input('phone'))),
                 'email' => $this->input('email'),
-                'profile_photo_path' => $this->input('profile_pic_path')
+                'profile_photo_path' => $this->input('profile_pic_path'),
+                'password' => Hash::make($this->input('pwd_code'))
             ]);
 
             $user->profile()->update([

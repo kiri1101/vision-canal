@@ -105,51 +105,7 @@
                 </section>
 
                 <section id="transactions" class="overflow-hidden bg-white shadow card sm:rounded-lg">
-                    <div class="px-6 py-4 bg-white border-b border-gray-200 mdx1:flex sm:justify-between lg:px-8">
-                        <div class="space-y-5">
-                            <ApplicationLogo class="block w-auto h-12" />
-
-                            <h1 class="text-xl font-semibold text-gray-800">Transactions List</h1>
-                        </div>
-
-                        <div class="flex-wrap items-end gap-3 mt-2 sm:flex">
-                            <div class="gap-3 sm:flex">
-                                <div>
-                                    <label for="date-start" class="block text-sm"> Start Date </label>
-
-                                    <Calendar v-model="query.start" showIcon iconDisplay="input" inputId="icondisplay"
-                                        date-format="dd/mm/yy" :pt="{
-                                            root: {
-                                                class: 'w-full rounded h-9'
-                                            },
-                                            input: {
-                                                class: 'w-full rounded h-9 border border-gray-300 rounded-md shadow-sm'
-                                            }
-                                        }" />
-                                </div>
-                                <div>
-                                    <label for="end-date" class="block text-sm"> End Date </label>
-
-                                    <Calendar v-model="query.end" showIcon iconDisplay="input" inputId="icondisplay"
-                                        date-format="dd/mm/yy" :pt="{
-                                            root: {
-                                                class: 'w-full rounded h-9'
-                                            },
-                                            input: {
-                                                class: 'w-full rounded h-9 border border-gray-300 rounded-md shadow-sm'
-                                            }
-                                        }" />
-                                </div>
-                            </div>
-
-                            <PrimaryButton class="w-full mt-5 sm:w-auto h-9">
-                                <span>Search</span>
-                                <!-- <i class="block sm:hidden fa-solid fa-magnifying-glass"></i> -->
-                            </PrimaryButton>
-                        </div>
-                    </div>
-
-                    <TransactionIndex :transactions="transactions.list" />
+                    <TransactionIndex />
                 </section>
 
                 <section id="money-transfer">
@@ -166,15 +122,18 @@
                                             <div>
                                                 <InputLabel for="user" value="User" />
 
-                                                <Dropdown v-model="deposit.user" :options="userList" optionLabel="name"
-                                                    placeholder="Choose a user" :pt="{
+                                                <Dropdown v-model="deposit.user" filter :options="userList"
+                                                    optionLabel="name" placeholder="Choose a user" :pt="{
                                                         root: {
                                                             class: {
-                                                                'w-full mt-1 h-9 md:w-14rem border border-gray-300 rounded-md shadow-sm': true,
+                                                                'w-full mt-1 h-9 border border-gray-300 rounded-md shadow-sm': true,
                                                                 'ring-2 ring-red-500 ring-offset-1':
-                                                                    deposit.errors.user?.length > 0
-                                                            }
-                                                        }
+                                                                    deposit.errors.user?.length > 0,
+                                                            },
+                                                        },
+                                                        filterInput: {
+                                                            class: 'w-full h-8 rounded-md border border-gray-300',
+                                                        },
                                                     }">
                                                     <template #option="slotProps">
                                                         <div class="flex text-sm align-items-center">
@@ -190,11 +149,11 @@
                                                     optionLabel="name" placeholder="Choose an account" :pt="{
                                                         root: {
                                                             class: {
-                                                                'w-full mt-1 h-9 md:w-14rem border border-gray-300 rounded-md shadow-sm': true,
+                                                                'w-full mt-1 h-9 border border-gray-300 rounded-md shadow-sm': true,
                                                                 'ring-2 ring-red-500 ring-offset-1':
-                                                                    deposit.errors.account?.length > 0
-                                                            }
-                                                        }
+                                                                    deposit.errors.account?.length > 0,
+                                                            },
+                                                        },
                                                     }" />
                                             </div>
                                         </div>
@@ -225,15 +184,18 @@
                                         <div class="grid grid-cols-2 gap-3">
                                             <div>
                                                 <InputLabel for="user" value="User" />
-                                                <Dropdown v-model="withdraw.user" :options="userList" optionLabel="name"
-                                                    placeholder="Choose a user" :pt="{
+                                                <Dropdown v-model="withdraw.user" filter :options="userList"
+                                                    optionLabel="name" placeholder="Choose a user" :pt="{
                                                         root: {
                                                             class: {
-                                                                'w-full mt-1 h-9 md:w-14rem border border-gray-300 rounded-md shadow-sm': true,
+                                                                'w-full mt-1 h-9 border border-gray-300 rounded-md shadow-sm': true,
                                                                 'ring-2 ring-red-500 ring-offset-1':
-                                                                    withdraw.errors.user?.length > 0
-                                                            }
-                                                        }
+                                                                    withdraw.errors.user?.length > 0,
+                                                            },
+                                                        },
+                                                        filterInput: {
+                                                            class: 'w-full h-8 rounded-md border border-gray-300',
+                                                        },
                                                     }">
                                                     <template #option="slotProps">
                                                         <div class="flex text-sm align-items-center">
@@ -249,11 +211,11 @@
                                                     optionLabel="name" placeholder="Choose an account" :pt="{
                                                         root: {
                                                             class: {
-                                                                'w-full mt-1 h-9 md:w-14rem border border-gray-300 rounded-md shadow-sm': true,
+                                                                'w-full mt-1 h-9 border border-gray-300 rounded-md shadow-sm': true,
                                                                 'ring-2 ring-red-500 ring-offset-1':
-                                                                    deposit.errors.account?.length > 0
-                                                            }
-                                                        }
+                                                                    deposit.errors.account?.length > 0,
+                                                            },
+                                                        },
                                                     }" />
                                             </div>
                                         </div>
@@ -279,6 +241,14 @@
                         </div>
                     </div>
                 </section>
+
+                <section id="subscriptions" class="overflow-hidden bg-white shadow card sm:rounded-lg">
+                    <SubscriptionList />
+                </section>
+
+                <section id="subscriptions-renewal" class="overflow-hidden bg-white shadow card sm:rounded-lg">
+                    <SubscriptionRenewalList />
+                </section>
             </div>
         </div>
     </AppLayout>
@@ -288,14 +258,14 @@
 import { ref } from "vue";
 import { useForm, router } from "@inertiajs/vue3";
 import AppLayout from "@/Layouts/AppLayout.vue";
-import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import TransactionIndex from "@/Components/Transactions/TransactionIndex.vue";
+import SubscriptionList from "./SubscriptionList.vue";
+import SubscriptionRenewalList from "./SubscriptionRenewalList.vue";
 import LineChart from "@/Components/Charts/LineChart.vue";
 import PolarChart from "@/Components/Charts/PolarChart.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import Dropdown from "primevue/dropdown";
-import Calendar from "primevue/calendar";
 import TextInput from "@/Components/TextInput.vue";
 import Toast from "primevue/toast";
 import { useToast } from "primevue/usetoast";
@@ -304,7 +274,6 @@ const props = defineProps({
     userList: Object,
     accounts: Object,
     subs: Object,
-    transactions: Object,
     budget: Object,
 });
 
@@ -320,11 +289,6 @@ const withdraw = useForm({
     user: {},
     account: {},
     amount: "",
-});
-
-const query = useForm({
-    start: "",
-    end: "",
 });
 
 const polarSeries = ref([42, 68, 52, 78, 65, 75, 38, 90, 26, 58, 95, 75]);

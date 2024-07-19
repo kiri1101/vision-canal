@@ -25,7 +25,7 @@ class DashboardController extends Controller
 
     public function index(): Response
     {
-        return Inertia::render('Dashboard', [
+        return Inertia::render('Dashboard/Index', [
             'userList' => User::isNotAdmin()->get()->map(fn ($user) => [
                 'id' => $user->uuid,
                 'name' => $user->name,
@@ -47,10 +47,6 @@ class DashboardController extends Controller
             'budget' => [
                 'total' => $this->formatAmount($this->profit())
             ],
-            'transactions' => [
-                'number' => Transaction::count(),
-                'list' => TransactionResource::collection(Transaction::all())
-            ]
         ]);
     }
 

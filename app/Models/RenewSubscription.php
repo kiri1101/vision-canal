@@ -36,6 +36,16 @@ class RenewSubscription extends Model
     // RELATIONSHIP
 
     /**
+     * Get the user that owns the RenewSubscription
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
      * Get the formula that owns the RenewSubscription
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
