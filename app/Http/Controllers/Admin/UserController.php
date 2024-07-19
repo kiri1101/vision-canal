@@ -22,7 +22,7 @@ class UserController extends Controller
     public function index(): Response
     {
         return Inertia::render('Admin/Users/Index', [
-            'users' => UserResource::collection(User::all())
+            'users' => UserResource::collection(User::latest('created_at')->get()->all())
         ]);
     }
 

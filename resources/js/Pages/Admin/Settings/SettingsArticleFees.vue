@@ -1,24 +1,23 @@
 <template>
-    <div class="max-w-screen-xl px-5 py-3 mx-2 mt-2 tracking-tight bg-white rounded shadow sm:mx-auto">
+    <div class="max-w-screen-xl px-5 py-3 mx-2 tracking-tight bg-white rounded shadow sm:mx-auto">
         <Toast />
 
         <p class="py-2 text-lg font-medium leading-tight text-gray-800 border-b border-gray-300">
             Articles Fees
         </p>
 
-        <ul class="mt-4 space-y-2">
-            <li v-for="(article, index) in props.articles" :key="index" class="grid items-center grid-cols-3">
-                <p>{{ article.title }}</p>
-
-                <p>{{ article.image }}</p>
-
-                <div class="flex justify-end">
+        <DataTable :value="props.articles" tableStyle="min-width: 50rem" class="font-futura">
+            <Column field="title" header="Title"></Column>
+            <Column field="image" header="Image URL"></Column>
+            <Column field="prize" header="Prize/Fcfa"></Column>
+            <Column header="Action">
+                <template #body="slotProps">
                     <Button icon="fa-solid fa-pen-to-square" severity="contrast" label="Edit"
                         class="h-8 px-3 text-white bg-gray-900 hover:bg-gray-700"
-                        @click.prevent="openModal(article.id)" />
-                </div>
-            </li>
-        </ul>
+                        @click.prevent="openModal(slotProps.data.id)" />
+                </template>
+            </Column>
+        </DataTable>
 
         <div class="flex card justify-content-center">
             <Dialog v-model:visible="visible" modal header="Edit Profile" :style="{ width: '25rem' }">
@@ -60,7 +59,8 @@
                         <!-- https://primefaces.org/cdn/primevue/images/galleria/galleria10.jpg -->
                         <label for="image" class="text-sm font-semibold"> Image preview </label>
                         <Skeleton v-if="showImagePreviewLoader" width="15.7rem" height="14.5rem"
-                            class="justify-self-center"></Skeleton>
+                            class="justify-self-center">
+                        </Skeleton>
 
                         <Image v-else :src="imagePreview" alt="Image" width="250" class="justify-self-center" preview />
                     </div>
@@ -90,7 +90,8 @@ import Skeleton from "primevue/skeleton";
 import Toast from "primevue/toast";
 import { useToast } from "primevue/usetoast";
 import SettingsFileUpload from "./SettingsFileUpload.vue";
-
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
 
 const props = defineProps({
     articles: Array,
@@ -100,7 +101,7 @@ const toast = useToast();
 
 const visible = ref(false);
 
-const imagePreview = ref('');
+const imagePreview = ref("");
 
 const showImagePreviewLoader = ref(false);
 
@@ -142,7 +143,7 @@ const updatingArticlePreview = (path) => {
 };
 
 const updateSocial = (articleId) => {
-    form.post(route('settings.store.article', articleId), {
+    form.post(route("settings.store.article", articleId), {
         onSuccess: () => {
             toast.add({
                 severity: "success",
@@ -150,6 +151,7 @@ const updateSocial = (articleId) => {
                 detail: "Article data updated",
                 life: 3000,
             });
+            closeModal();
         },
         onError: () => {
             toast.add({
@@ -158,7 +160,7 @@ const updateSocial = (articleId) => {
                 detail: "Update failed! Try again",
                 life: 3000,
             });
-        }
-    })
+        },
+    });
 };
 </script>

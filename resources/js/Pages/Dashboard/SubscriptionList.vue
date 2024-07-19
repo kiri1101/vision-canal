@@ -1,13 +1,9 @@
 <template>
     <div class="px-0 tracking-tight md:px-4 lg:px-6">
         <div class="py-4 bg-white border-b border-gray-200 mdx1:flex sm:justify-between lg:px-8">
-            <div class="space-y-5">
-                <ApplicationLogo class="block w-auto h-12" />
+            <h1 class="text-xl font-semibold text-gray-800">Subscription List</h1>
 
-                <h1 class="text-xl font-semibold text-gray-800">Transactions List</h1>
-            </div>
-
-            <form @submit.prevent="filteringTransactions" class="flex-wrap items-end gap-3 mt-2 sm:flex">
+            <form @submit.prevent="filteringSubscriptions" class="flex-wrap items-end gap-3 mt-2 sm:flex">
                 <div class="gap-3 sm:flex">
                     <div>
                         <label for="date-start" class="block text-sm"> Start Date </label>
@@ -58,7 +54,7 @@
                     <div v-if="products.length === 0" class="grid place-items-center h-96">
                         <div class="text-center">
                             <i class="text-2xl fa-regular fa-folder-open"></i>
-                            <p>No transactions</p>
+                            <p>No subscriptions</p>
                         </div>
                     </div>
 
@@ -66,7 +62,8 @@
                         :paginator="true" :rows="10" :filters="filters"
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         :rowsPerPageOptions="[5, 10, 25]"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Transactions">
+                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Transactions"
+                        class="font-futura">
                         <template #header>
                             <div
                                 class="flex flex-wrap items-center justify-between gap-2 align-items-center justify-content-between">
@@ -84,30 +81,16 @@
                             </div>
                         </template>
 
-                        <Column selectionMode="multiple" style="width: 3rem" :exportable="false">
+                        <Column selectionMode="multiple" class="w-12" :exportable="false"> </Column>
+                        <Column field="label" header="Name" sortable class="min-w-[10rem] whitespace-nowrap"></Column>
+                        <Column field="street" header="Quarter" sortable class="min-w-[10rem] whitespace-nowrap">
                         </Column>
-                        <Column header="Status">
-                            <template #body="slotProps">
-                                <Tag v-if="slotProps.data.type === 'Deposit'" :value="slotProps.data.type"
-                                    severity="success" />
-                                <Tag v-if="slotProps.data.type === 'Withdrawal'" :value="slotProps.data.type"
-                                    severity="warning" />
-                            </template>
+                        <Column field="province" header="Region" sortable style="min-width: 5rem"></Column>
+                        <Column field="headquarter" header="Town" sortable class="min-w-[10rem] whitespace-nowrap">
                         </Column>
-                        <Column field="amount" header="Amount" sortable style="min-width: 5rem"></Column>
-                        <Column field="commission" header="Commission" sortable style="min-width: 5rem"></Column>
-                        <Column field="sender" header="Sender" sortable class="min-w-[10rem] whitespace-nowrap">
+                        <Column field="tel" header="Phone Number" sortable class="min-w-[10rem] whitespace-nowrap">
                         </Column>
-                        <Column field="sender_account" header="Sender Account" sortable
-                            class="min-w-[10rem] whitespace-nowrap">
-                        </Column>
-                        <Column field="receiver" header="Receiver" sortable class="min-w-[10rem] whitespace-nowrap">
-                        </Column>
-                        <Column field="receiver_account" header="Receiver Account" sortable
-                            class="min-w-[10rem] whitespace-nowrap">
-                        </Column>
-                        <Column field="date_created" header="Created At" sortable
-                            class="min-w-[10rem] whitespace-nowrap">
+                        <Column field="created" header="Created At" sortable class="min-w-[10rem] whitespace-nowrap">
                         </Column>
                     </DataTable>
                 </div>
@@ -118,8 +101,6 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-// import { useForm, router } from '@inertiajs/vue3';
-import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import Calendar from "primevue/calendar";
 import { FilterMatchMode } from "primevue/api";
@@ -129,14 +110,13 @@ import InputIcon from "primevue/inputicon";
 import InputText from "primevue/inputtext";
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
-import Tag from "primevue/tag";
 import Toast from "primevue/toast";
 import { useToast } from "primevue/usetoast";
 import moment from "moment";
 import { axiosInstance } from "@/mixins/axiosInstance";
 
 onMounted(() => {
-    filteringTransactions();
+    filteringSubscriptions();
 });
 
 const toast = useToast();
@@ -158,13 +138,13 @@ const filters = ref({
 const formatQueryDate = (value) =>
     value.toString().length > 0 ? moment(value).format("YYYY-MM-DD") : "";
 
-const filteringTransactions = () => {
+const filteringSubscriptions = () => {
     let startDate = query.value.start === null ? "" : query.value.start;
     let endDate = query.value.end === null ? "" : query.value.end;
 
     isLoading.value = true;
     axiosInstance
-        .post(route("settings.transactions.list"), {
+        .post(route("settings.subscriptions.list"), {
             start: formatQueryDate(startDate),
             end: formatQueryDate(endDate),
         })
@@ -177,7 +157,7 @@ const filteringTransactions = () => {
             toast.add({
                 severity: "error",
                 summary: "Error",
-                detail: "Cannot load transactions",
+                detail: "Cannot load subscriptions",
                 life: 3000,
             });
         });

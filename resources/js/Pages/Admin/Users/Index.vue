@@ -41,18 +41,18 @@
                                 </div>
                             </template>
 
-                            <Column field="full_name" header="Name" sortable style="min-width:16rem"></Column>
-                            <Column field="role.name" header="Role" sortable style="min-width:5rem">
+                            <Column field="full_name" header="Name" sortable style="min-width: 16rem"></Column>
+                            <Column field="role.name" header="Role" sortable style="min-width: 5rem">
                             </Column>
-                            <Column field="mail" header="Email" sortable style="min-width:12rem"></Column>
-                            <Column field="phone_number" header="Tel" sortable style="min-width:12rem"></Column>
-                            <Column field="home_address" header="Address" sortable style="min-width:12rem"></Column>
-                            <Column field="city" header="City" sortable style="min-width:10rem"></Column>
-                            <Column field="country_of_origin" header="Country" sortable style="min-width:10rem">
+                            <Column field="mail" header="Email" sortable style="min-width: 12rem"></Column>
+                            <Column field="phone_number" header="Tel" sortable style="min-width: 12rem"></Column>
+                            <Column field="home_address" header="Address" sortable style="min-width: 12rem"></Column>
+                            <Column field="city" header="City" sortable style="min-width: 10rem"></Column>
+                            <Column field="country_of_origin" header="Country" sortable style="min-width: 10rem">
                             </Column>
-                            <Column field="profession" header="Profession" sortable style="min-width:12rem">
+                            <Column field="profession" header="Profession" sortable style="min-width: 12rem">
                             </Column>
-                            <Column :exportable="false" style="min-width:8rem">
+                            <Column :exportable="false" style="min-width: 8rem">
                                 <template #body="slotProps">
                                     <Button icon="pi pi-pencil" outlined rounded
                                         class="mr-2 text-white bg-gray-900 hover:bg-gray-700"
@@ -70,7 +70,12 @@
                         <div class="field">
                             <label for="role" class="text-sm">Role</label>
                             <Dropdown v-model="user.role" :options="roles" optionLabel="name"
-                                placeholder="Choose a role" />
+                                placeholder="Choose a role" :pt="{
+                                    root: {
+                                        class:
+                                            'text-sm border border-gray-300 rounded-md shadow-sm h-9 focus:border-indigo-500 focus:ring-indigo-500 indent-5',
+                                    },
+                                }" />
                         </div>
                         <div class="field">
                             <label for="full_name" class="text-sm">Name</label>
@@ -163,36 +168,35 @@
                         </template>
                     </Dialog>
                 </div>
-
             </div>
         </div>
     </AppLayout>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useForm, router } from '@inertiajs/vue3';
-import { FilterMatchMode } from 'primevue/api';
-import Button from 'primevue/button';
-import Toolbar from 'primevue/toolbar';
-import IconField from 'primevue/iconfield';
-import InputIcon from 'primevue/inputicon';
-import InputText from 'primevue/inputtext';
-import InputError from '@/Components/InputError.vue';
-import Dropdown from 'primevue/dropdown';
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-import Dialog from 'primevue/dialog';
-import Toast from 'primevue/toast';
-import AppLayout from '@/Layouts/AppLayout.vue';
-import { vMaska } from 'maska';
-import { useToast } from 'primevue/usetoast';
-import { axiosInstance } from '@/mixins/axiosInstance';
+import { ref, computed, onMounted } from "vue";
+import { useForm, router } from "@inertiajs/vue3";
+import { FilterMatchMode } from "primevue/api";
+import Button from "primevue/button";
+import Toolbar from "primevue/toolbar";
+import IconField from "primevue/iconfield";
+import InputIcon from "primevue/inputicon";
+import InputText from "primevue/inputtext";
+import InputError from "@/Components/InputError.vue";
+import Dropdown from "primevue/dropdown";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import Dialog from "primevue/dialog";
+import Toast from "primevue/toast";
+import AppLayout from "@/Layouts/AppLayout.vue";
+import { vMaska } from "maska";
+import { useToast } from "primevue/usetoast";
+import { axiosInstance } from "@/mixins/axiosInstance";
 
-onMounted(() => products.value = props.users.data);
+onMounted(() => (products.value = props.users.data));
 
 const props = defineProps({
-    users: Object
+    users: Object,
 });
 
 const toast = useToast();
@@ -210,12 +214,17 @@ const isEditingUser = ref(false);
 const user = ref({});
 const selectedUsers = ref();
 const filters = ref({
-    'global': { value: null, matchMode: FilterMatchMode.CONTAINS },
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 const submitted = ref(false);
-const roles = [{ id: 1, name: 'Admin' }, { id: 2, name: 'User' }];
+const roles = [
+    { id: 1, name: "Admin" },
+    { id: 2, name: "User" },
+];
 
-const userSubmitRoute = computed(() => isEditingUser.value ? route('users.update.account') : route('users.create.new'));
+const userSubmitRoute = computed(() =>
+    isEditingUser.value ? route("users.update.account") : route("users.create.new")
+);
 
 const openNew = () => {
     user.value = {};
@@ -231,29 +240,31 @@ const hideDialog = () => {
 const saveUser = () => {
     submitted.value = true;
 
-    form.transform(data => ({
-        ...data,
-        ...user.value
-    })).post(userSubmitRoute.value, {
-        onSuccess: () => {
-            userDialog.value = false;
-            user.value = {};
-            isEditingUser.value = false
-            router.visit(route('users.index'));
-        },
-        onError: (error) => {
-            Object.values(error).forEach((message) => {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: message,
-                    life: toastTimeout.value
+    form
+        .transform((data) => ({
+            ...data,
+            ...user.value,
+        }))
+        .post(userSubmitRoute.value, {
+            onSuccess: () => {
+                userDialog.value = false;
+                user.value = {};
+                isEditingUser.value = false;
+                router.visit(route("users.index"));
+            },
+            onError: (error) => {
+                Object.values(error).forEach((message) => {
+                    toast.add({
+                        severity: "error",
+                        summary: "Error",
+                        detail: message,
+                        life: toastTimeout.value,
+                    });
                 });
-            })
-        },
-        // onFinish: () => isEditingUser.value = false,
-        preserveScroll: true
-    });
+            },
+            // onFinish: () => isEditingUser.value = false,
+            preserveScroll: true,
+        });
 };
 
 const editUser = (prod) => {
@@ -268,18 +279,16 @@ const confirmDeleteUser = (prod) => {
 };
 
 const deleteUser = () => {
-    axiosInstance
-        .post(route('users.delete.account', user.value.id))
-        .then((response) => {
-            products.value = products.value.filter(val => val.id !== user.value.id);
-            deleteUserDialog.value = false;
-            user.value = {};
-            toast.add({
-                severity: 'success',
-                summary: 'Success',
-                detail: response.data.message,
-                life: toastTimeout.value
-            });
-        })
+    axiosInstance.post(route("users.delete.account", user.value.id)).then((response) => {
+        products.value = products.value.filter((val) => val.id !== user.value.id);
+        deleteUserDialog.value = false;
+        user.value = {};
+        toast.add({
+            severity: "success",
+            summary: "Success",
+            detail: response.data.message,
+            life: toastTimeout.value,
+        });
+    });
 };
 </script>
