@@ -62,9 +62,9 @@ class SettingController extends BaseController
             ]),
             'settings' => [
                 'home_video_link' => $setting->value('home_page_video'),
-                'whatsappLink' => is_null($setting->whatsapp) ? '' : $setting->value('whatsapp'),
-                'facebookLink' => is_null($setting->facebook) ? '' : $setting->value('facebook'),
-                'instagramLink' => is_null($setting->instagram) ? '' : $setting->value('instagram')
+                'whatsappLink' => is_null($setting->value('whatsapp')) ? '' : $setting->value('whatsapp'),
+                'facebookLink' => is_null($setting->value('facebook')) ? '' : $setting->value('facebook'),
+                'instagramLink' => is_null($setting->value('instagram')) ? '' : $setting->value('instagram')
             ],
             'articles' => Article::all()->map(fn ($article) => [
                 'id' => $article->uuid,
