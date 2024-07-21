@@ -82,11 +82,17 @@
                         </template>
 
                         <Column selectionMode="multiple" class="w-12" :exportable="false"> </Column>
-                        <Column field="label" header="Name" sortable class="min-w-[10rem] whitespace-nowrap"></Column>
-                        <Column field="street" header="Quarter" sortable class="min-w-[10rem] whitespace-nowrap">
+                        <Column field="user" header="Agent" sortable class="min-w-[10rem] whitespace-nowrap"></Column>
+                        <Column field="name" header="Subscriber" sortable class="min-w-[10rem] whitespace-nowrap">
                         </Column>
-                        <Column field="province" header="Region" sortable style="min-width: 5rem"></Column>
-                        <Column field="headquarter" header="Town" sortable class="min-w-[10rem] whitespace-nowrap">
+                        <Column field="decoder_no" header="Decoder No" sortable class="min-w-[10rem] whitespace-nowrap">
+                        </Column>
+                        <Column field="formula" header="Formula" sortable style="min-width: 5rem"></Column>
+                        <Column field="duration" header="Duration" sortable class="min-w-[10rem] whitespace-nowrap">
+                        </Column>
+                        <Column field="method" header="Payment Method" sortable class="min-w-[10rem] whitespace-nowrap">
+                        </Column>
+                        <Column field="amount" header="Amount" sortable class="min-w-[10rem] whitespace-nowrap">
                         </Column>
                         <Column field="tel" header="Phone Number" sortable class="min-w-[10rem] whitespace-nowrap">
                         </Column>
