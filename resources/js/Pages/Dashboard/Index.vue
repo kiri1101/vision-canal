@@ -249,6 +249,10 @@
                 <section id="subscriptions-renewal" class="overflow-hidden bg-white shadow card sm:rounded-lg">
                     <SubscriptionRenewalList />
                 </section>
+
+                <section id="support" class="overflow-hidden bg-white shadow card sm:rounded-lg">
+                    <SupportList />
+                </section>
             </div>
         </div>
     </AppLayout>
@@ -261,6 +265,7 @@ import AppLayout from "@/Layouts/AppLayout.vue";
 import TransactionIndex from "@/Components/Transactions/TransactionIndex.vue";
 import SubscriptionList from "./SubscriptionList.vue";
 import SubscriptionRenewalList from "./SubscriptionRenewalList.vue";
+import SupportList from "./SupportList.vue";
 import LineChart from "@/Components/Charts/LineChart.vue";
 import PolarChart from "@/Components/Charts/PolarChart.vue";
 import InputLabel from "@/Components/InputLabel.vue";
