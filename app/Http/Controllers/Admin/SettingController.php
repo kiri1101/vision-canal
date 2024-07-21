@@ -7,6 +7,7 @@ use App\Http\Requests\AdminSubscriptionRenewalRequest;
 use App\Http\Requests\AdminSubscriptionRequest;
 use App\Http\Requests\AdminTransactionsRequest;
 use App\Http\Requests\ArticleFileUploadRequest;
+use App\Http\Requests\SupportListRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use App\Http\Requests\UpdateSocialLinkRequest;
 use App\Models\Article;
@@ -63,6 +64,11 @@ class SettingController extends Controller
     }
 
     public function subscriptionRenewalList(AdminSubscriptionRenewalRequest $request)
+    {
+        return $request->search();
+    }
+
+    public function supportList(SupportListRequest $request): JsonResponse
     {
         return $request->search();
     }
