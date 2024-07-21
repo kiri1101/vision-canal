@@ -59,11 +59,11 @@ class AdminSubscriptionRenewalRequest extends FormRequest
                 'decoder_no' => $subscribe->decoder,
                 'name' => $subscribe->name,
                 'formula' => $subscribe->formula->name,
-                'duration' => $subscribe->street,
+                'duration' => $subscribe->duration,
                 'tel' => $subscribe->phone,
                 'method' => $subscribe->paymentMethod->name,
                 'amount' => $subscribe->amount,
-                'created' => $subscribe->created_at
+                'created' => $subscribe->created_at->format('d/m/Y \a H:i')
             ])->all()
         ]);
     }
