@@ -50,11 +50,7 @@ class TopUpRequest extends FormRequest
             $paymentMethod = Payment::searchByUUID($this->input('method'))->first();
             $amount = (int) $this->input('amount');
 
-            if (env('APP_DEBUG')) {
-                $request = new Deposit(env('MESOMB_TEST_SUCCESS_NUMBER'), 1000, 'MTN', 'CM');
-            } else {
-                $request = new Deposit($this->input('phone'), 1000, $paymentMethod->short_code, 'CM');
-            }
+            $request = env('APP_DEBUG') ? new Deposit(env('MESOMB_TEST_SUCCESS_NUMBER'), 1000, 'MTN', 'CM') : $request = new Deposit($this->input('phone'), 1000, $paymentMethod->short_code, 'CM');
 
             $payment = $request->pay();
 

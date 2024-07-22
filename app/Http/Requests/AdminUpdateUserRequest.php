@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Hash;
 
 class AdminUpdateUserRequest extends FormRequest
 {
@@ -38,6 +39,8 @@ class AdminUpdateUserRequest extends FormRequest
             'city' => collect($this->input('city'))->isNotEmpty() ? 'required|string' : '',
             'country_of_origin' => collect($this->input('country_of_origin'))->isNotEmpty() ? 'required|string' : '',
             'profession' => collect($this->input('profession'))->isNotEmpty() ? 'required|string' : '',
+            'password' => collect($this->input('mail'))->isNotEmpty() ? 'required|string|confirmed|min:4' : '',
+            'password_confirmation' => collect($this->input('mail'))->isNotEmpty() ? 'required|string|min:4' : '',
         ];
     }
 
@@ -55,6 +58,12 @@ class AdminUpdateUserRequest extends FormRequest
                 'phone' => $phone,
                 'is_admin' => $this->input('role')['id'] === 1 ? true : false,
             ]);
+
+            if (collect($this->input('password'))->isNotEmpty()) {
+                $user->update([
+                    'password' => Hash::make($this->input('password'))
+                ]);
+            }
 
             $user->profile()->update([
                 'address' => $this->input('home_address'),
