@@ -33,7 +33,7 @@ class OrderListRequest extends FormRequest
         ];
     }
 
-    public function search(): JsonResponse
+    public function search()
     {
         $startDate = strlen($this->input('start')) > 0 ? Carbon::createFromFormat('Y-m-d', $this->input('start')) : '';
         $endDate = strlen($this->input('end')) > 0 ? Carbon::createFromFormat('Y-m-d', $this->input('end')) : '';
@@ -50,7 +50,6 @@ class OrderListRequest extends FormRequest
             $query->whereDate('created_at', '>=', $startDate)->whereDate('created_at', '<=', $endDate)->latest('created_at')->take(100)->get();
         }
 
-        // $orderList = $query->where('status', false)->get();
         $orderList = $query->get();
 
         return $this->successResponse('Orders list', [
