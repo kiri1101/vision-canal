@@ -21,7 +21,7 @@ return new class extends Migration
                 ->constrained()
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
-            $table->enum('status', [0, 1])->default(0)->comment('0 => Pending, 1 => Handled');
+            $table->boolean('status')->default(false)->comment('false => Pending, true => Handled');
             $table->timestamps();
         });
     }
