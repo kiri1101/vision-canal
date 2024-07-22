@@ -52,6 +52,8 @@
                             </Column>
                             <Column field="profession" header="Profession" sortable style="min-width: 12rem">
                             </Column>
+                            <Column field="created" header="Created At" sortable style="min-width: 12rem">
+                            </Column>
                             <Column :exportable="false" style="min-width: 8rem">
                                 <template #body="slotProps">
                                     <Button icon="pi pi-pencil" outlined rounded
