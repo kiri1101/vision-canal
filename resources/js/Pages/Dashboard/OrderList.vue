@@ -157,11 +157,6 @@ const filters = ref({
 const handlingStatusToggle = (e, id) => {
     toggleOverlayPanel(e);
     toggleOrderStatus(id);
-    // settings/orders/{order}/update
-    useForm({}).post(route('settings.order.update', id), {
-        onSuccess: () => { console.log('order status updated') },
-        onError: () => { }
-    })
 }
 
 const toggleOverlayPanel = (event) => op.value.toggle(event);
@@ -170,7 +165,22 @@ const formatQueryDate = (value) =>
     value.toString().length > 0 ? moment(value).format("YYYY-MM-DD") : "";
 
 const toggleOrderStatus = (id) => {
-    console.log('chosen status id: ', id);
+    isLoading.value = true;
+    axiosInstance
+        .post(route("settings.order.update", id))
+        .then((response) => {
+            isLoading.value = false;
+            products.value = response.data.data.list;
+        })
+        .catch((error) => {
+            isLoading.value = false;
+            toast.add({
+                severity: "error",
+                summary: "Error",
+                detail: "Failed to update order status",
+                life: 3000,
+            });
+        });
 }
 
 const filteringSupport = () => {

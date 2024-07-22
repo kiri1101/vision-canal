@@ -89,5 +89,19 @@ class SettingController extends Controller
         $order->update([
             'status' => true
         ]);
+
+        $orderList = Order::all();
+
+        return $this->successResponse('Orders list', [
+            'number' => $orderList->count(),
+            'list' => $orderList->map(fn ($order) => [
+                'id' => $order->uuid,
+                'user' => $order->user->name,
+                'tel' => $order->user->phone,
+                'article' => $order->article->title,
+                'status' => $order->status,
+                'created' => $order->created_at->format('d/m/Y \a H:i')
+            ])
+        ]);
     }
 }
