@@ -55,6 +55,8 @@ Route::middleware([
         Route::post('/subscriptions/list', 'subscriptionList')->name('subscriptions.list');
         Route::post('/subscriptions/renewal/list', 'subscriptionRenewalList')->name('subscriptions.renewals');
         Route::post('/support/list', 'supportList')->name('support.list');
+        Route::post('/orders/list', 'orderList')->name('order.list');
+        Route::post('/orders/{order:uuid}/update', 'updateOrder')->name('order.update');
     });
 });
 

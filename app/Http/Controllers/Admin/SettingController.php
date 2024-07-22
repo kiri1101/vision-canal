@@ -7,10 +7,14 @@ use App\Http\Requests\AdminSubscriptionRenewalRequest;
 use App\Http\Requests\AdminSubscriptionRequest;
 use App\Http\Requests\AdminTransactionsRequest;
 use App\Http\Requests\ArticleFileUploadRequest;
+use App\Http\Requests\OrderListRequest;
+use App\Http\Requests\OrderUpdateRequest;
 use App\Http\Requests\SupportListRequest;
 use App\Http\Requests\UpdateArticleRequest;
 use App\Http\Requests\UpdateSocialLinkRequest;
+use App\Http\Traits\Helpers;
 use App\Models\Article;
+use App\Models\Order;
 use App\Models\Setting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -19,6 +23,8 @@ use Inertia\Inertia;
 
 class SettingController extends Controller
 {
+    use Helpers;
+
     public function index()
     {
         return Inertia::render('Admin/Settings/Settings', [
@@ -71,5 +77,17 @@ class SettingController extends Controller
     public function supportList(SupportListRequest $request): JsonResponse
     {
         return $request->search();
+    }
+
+    public function orderList(OrderListRequest $request)
+    {
+        return $request->search();
+    }
+
+    public function updateOrder(Order $order)
+    {
+        $order->update([
+            'status' => true
+        ]);
     }
 }
