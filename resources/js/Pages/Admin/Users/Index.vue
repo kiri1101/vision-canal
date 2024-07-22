@@ -123,13 +123,13 @@
                                 class="border-gray-300 rounded-md shadow-sm h-9 focus:border-indigo-500 focus:ring-indigo-500" />
                             <InputError class="mt-2" :message="form.errors.profession" />
                         </div>
-                        <div v-if="!isEditingUser" class="field">
+                        <div class="field">
                             <label for="password" class="text-sm">Password</label>
                             <InputText type="text" id="password" v-model.trim="user.password"
                                 class="border-gray-300 rounded-md shadow-sm h-9 focus:border-indigo-500 focus:ring-indigo-500" />
                             <InputError class="mt-2" :message="form.errors.password" />
                         </div>
-                        <div v-if="!isEditingUser" class="field">
+                        <div class="field">
                             <label for="password_confirmation" class="text-sm">
                                 Password Confirmation
                             </label>
@@ -143,7 +143,7 @@
                                 <Button label="Cancel" icon="pi pi-times" severity="danger" text
                                     class="px-2 py-1 text-gray-900 bg-transparent border border-gray-900 hover:bg-gray-900 hover:text-gray-50"
                                     @click="hideDialog" />
-                                <Button label="Save" icon="pi pi-check" text
+                                <Button label="Save" icon="pi pi-check" text :loading="isLoading"
                                     class="px-2 py-1 text-gray-900 border border-green-500 hover:bg-green-400 hover:text-gray-50"
                                     @click="saveUser" />
                             </div>
@@ -163,7 +163,7 @@
                                 <Button label="No" severity="danger" icon="pi pi-times" text
                                     class="px-2 py-0.5 border text-gray-900 border-gray-900 hover:bg-gray-900 hover:text-gray-50"
                                     @click="deleteUserDialog = false" />
-                                <Button label="Yes" icon="pi pi-check" text
+                                <Button label="Yes" icon="pi pi-check" text :loading="isLoading"
                                     class="px-2 py-0.5 border text-gray-900 border-red-500 hover:bg-red-500 hover:text-gray-50"
                                     @click="deleteUser" />
                             </div>
@@ -211,14 +211,13 @@ const dt = ref();
 const products = ref();
 const userDialog = ref(false);
 const deleteUserDialog = ref(false);
-const deleteUsersDialog = ref(false);
+const isLoading = ref(false);
 const isEditingUser = ref(false);
 const user = ref({});
 const selectedUsers = ref();
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
-const submitted = ref(false);
 const roles = [
     { id: 1, name: "Admin" },
     { id: 2, name: "User" },
@@ -230,43 +229,45 @@ const userSubmitRoute = computed(() =>
 
 const openNew = () => {
     user.value = {};
-    submitted.value = false;
+    isEditingUser.value = false;
     userDialog.value = true;
 };
 
-const hideDialog = () => {
-    userDialog.value = false;
-    submitted.value = false;
-};
+const hideDialog = () => userDialog.value = false;;
 
 const saveUser = () => {
-    submitted.value = true;
-
-    form
-        .transform((data) => ({
-            ...data,
-            ...user.value,
-        }))
-        .post(userSubmitRoute.value, {
-            onSuccess: () => {
-                userDialog.value = false;
-                user.value = {};
-                isEditingUser.value = false;
-                router.visit(route("users.index"));
-            },
-            onError: (error) => {
-                Object.values(error).forEach((message) => {
-                    toast.add({
-                        severity: "error",
-                        summary: "Error",
-                        detail: message,
-                        life: toastTimeout.value,
-                    });
+    isLoading.value = true;
+    Object.keys(user.value).map((key) => {
+        if (user.value[key] === 'N/A') {
+            user.value[key] = '';
+        }
+    });
+    axiosInstance
+        .post(userSubmitRoute.value, user.value)
+        .then((response) => {
+            console.log('users list: ', response.data);
+            products.value = response.data.data;
+            userDialog.value = false;
+            user.value = {};
+            isLoading.value = false;
+            isEditingUser.value = false;
+            toast.add({
+                severity: "success",
+                summary: "Success",
+                detail: "User infos updated",
+                life: toastTimeout.value,
+            });
+        }).catch((error) => {
+            isLoading.value = false;
+            Object.values(error).forEach((message) => {
+                toast.add({
+                    severity: "error",
+                    summary: "Error",
+                    detail: message,
+                    life: toastTimeout.value,
                 });
-            },
-            // onFinish: () => isEditingUser.value = false,
-            preserveScroll: true,
-        });
+            });
+        })
 };
 
 const editUser = (prod) => {
@@ -281,16 +282,23 @@ const confirmDeleteUser = (prod) => {
 };
 
 const deleteUser = () => {
-    axiosInstance.post(route("users.delete.account", user.value.id)).then((response) => {
-        products.value = products.value.filter((val) => val.id !== user.value.id);
-        deleteUserDialog.value = false;
-        user.value = {};
-        toast.add({
-            severity: "success",
-            summary: "Success",
-            detail: response.data.message,
-            life: toastTimeout.value,
+    isLoading.value = true;
+
+    axiosInstance
+        .post(route("users.delete.account", user.value.id))
+        .then((response) => {
+            isLoading.value = false;
+            products.value = products.value.filter((val) => val.id !== user.value.id);
+            deleteUserDialog.value = false;
+            user.value = {};
+            toast.add({
+                severity: "success",
+                summary: "Success",
+                detail: response.data.message,
+                life: toastTimeout.value,
+            });
+        }).catch((error) => {
+            isLoading.value = false;
         });
-    });
 };
 </script>

@@ -2,15 +2,15 @@
 
 namespace App\Http\Requests;
 
+use Exception;
+use App\Rules\Role;
 use App\Models\Team;
 use App\Models\User;
-use App\Rules\Role;
 use Illuminate\Support\Str;
 use App\Http\Traits\Helpers;
-use Exception;
 use Illuminate\Support\Facades\DB;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AdminCreateUserRequest extends FormRequest
@@ -53,7 +53,7 @@ class AdminCreateUserRequest extends FormRequest
         ];
     }
 
-    public function createNewUser(): RedirectResponse
+    public function createNewUser()
     {
         $phone =  $this->removeSpaceBetweenStringChar(trim($this->input('phone_number')));
 
@@ -90,9 +90,11 @@ class AdminCreateUserRequest extends FormRequest
                 });
             });
 
-            return back();
+            $users = UserResource::collection(User::latest('created_at')->get()->all());
+
+            return $this->successResponse('User created', $users);
         } catch (Exception $e) {
-            return back()->withErrors(['error' => 'Operation failed. Please try again']);
+            return $this->errorResponse('Operation failed. Please try again');
         }
     }
 }
