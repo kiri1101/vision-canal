@@ -49,6 +49,7 @@ class RenewSubscriptionRequest extends FormRequest
         $formula = Category::categoryByUUID($this->input('formula'))->first();
         $option = strlen($this->input('option')) > 0 ? Category::categoryByUUID($this->input('option'))->first() : '';
         $amount = (int) $this->input('amount');
+        $phone = $this->removeSpaceBetweenStringChar($this->input('phone'));
 
         try {
             // Check methodId to know from which account to deduct fonds
@@ -65,7 +66,7 @@ class RenewSubscriptionRequest extends FormRequest
                 if (env('APP_DEBUG')) {
                     $request = new Collect(env('MESOMB_TEST_SUCCESS_NUMBER'), 1000, 'MTN', 'CM', 'XAF', false);
                 } else {
-                    $request = new Collect($this->input('phone'), 1000, $paymentMethod->short_code, 'CM', 'XAF', false);
+                    $request = new Collect($phone, 1000, $paymentMethod->short_code, 'CM', 'XAF', false);
                 }
 
                 $payment = $request->pay();
