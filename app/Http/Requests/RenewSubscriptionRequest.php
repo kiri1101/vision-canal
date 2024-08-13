@@ -63,9 +63,9 @@ class RenewSubscriptionRequest extends FormRequest
             } else {
                 // Add MTN && Orange shortCode to respective payment Methods in DB
                 if (env('APP_DEBUG')) {
-                    $request = new Collect(env('MESOMB_TEST_SUCCESS_NUMBER'), 1000, 'MTN', 'CM');
+                    $request = new Collect(env('MESOMB_TEST_SUCCESS_NUMBER'), 1000, 'MTN', 'CM', 'XAF', false);
                 } else {
-                    $request = new Collect($this->input('phone'), 1000, $paymentMethod->short_code, 'CM');
+                    $request = new Collect($this->input('phone'), 1000, $paymentMethod->short_code, 'CM', 'XAF', false);
                 }
 
                 $payment = $request->pay();
