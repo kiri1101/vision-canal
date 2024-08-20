@@ -10,6 +10,10 @@ use Illuminate\Support\Str;
 use App\Http\Traits\Helpers;
 use App\Models\PaymentMethod;
 use App\Models\RenewSubscription;
+use Hachther\MeSomb\Exceptions\InvalidClientRequestException;
+use Hachther\MeSomb\Exceptions\PermissionDeniedException;
+use Hachther\MeSomb\Exceptions\ServerException;
+use Hachther\MeSomb\Exceptions\ServiceNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -48,8 +52,8 @@ class RenewSubscriptionRequest extends FormRequest
         $paymentMethod = PaymentMethod::searchByUUID($this->input('method'))->first();
         $formula = Category::categoryByUUID($this->input('formula'))->first();
         $option = strlen($this->input('option')) > 0 ? Category::categoryByUUID($this->input('option'))->first() : '';
-        $amount = (int) $this->input('amount');
-        $phone = $this->removeSpaceBetweenStringChar($this->input('phone'));
+        $amount = env('APP_DEBUG') ? env('MESOMB_TEST_AMOUNT') : (int) $this->input('amount');
+        $phone = env('APP_DEBUG') ? env('MESOMB_DEV_TEST_NUMBER') : $this->removeSpaceBetweenStringChar($this->input('phone'));
 
         try {
             // Check methodId to know from which account to deduct fonds
@@ -63,11 +67,7 @@ class RenewSubscriptionRequest extends FormRequest
                 }
             } else {
                 // Add MTN && Orange shortCode to respective payment Methods in DB
-                if (env('APP_DEBUG')) {
-                    $request = new Collect(env('MESOMB_TEST_SUCCESS_NUMBER'), 1000, 'MTN', 'CM', 'XAF', false);
-                } else {
-                    $request = new Collect($phone, 1000, $paymentMethod->short_code, 'CM', 'XAF', false);
-                }
+                $request = new Collect($phone, $amount, $paymentMethod->short_code, 'CM', 'XAF', false);
 
                 $payment = $request->pay();
 
@@ -114,6 +114,34 @@ class RenewSubscriptionRequest extends FormRequest
         } catch (Exception $e) {
             DB::rollBack();
 
+            Log::critical($e->getMessage(), [
+                'code' => $e->getCode(),
+                'trace' => $e
+            ]);
+
+            return $this->errorResponse('operation failed');
+        } catch (InvalidClientRequestException $e) {
+            Log::critical($e->getMessage(), [
+                'code' => $e->getCode(),
+                'trace' => $e
+            ]);
+
+            return $this->errorResponse('operation failed');
+        } catch (PermissionDeniedException $e) {
+            Log::critical($e->getMessage(), [
+                'code' => $e->getCode(),
+                'trace' => $e
+            ]);
+
+            return $this->errorResponse('operation failed');
+        } catch (ServerException $e) {
+            Log::critical($e->getMessage(), [
+                'code' => $e->getCode(),
+                'trace' => $e
+            ]);
+
+            return $this->errorResponse('operation failed');
+        } catch (ServiceNotFoundException $e) {
             Log::critical($e->getMessage(), [
                 'trace' => $e
             ]);
