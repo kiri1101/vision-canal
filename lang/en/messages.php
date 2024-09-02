@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'success' => [
         'authorization_token' => 'Authorization token generated successfully',
         'default_response' => 'Operation successful',
@@ -20,7 +19,10 @@ return [
             'user_account_exists' => 'An account with this phone number exists',
         ],
         'insufficient_balance' => 'Insufficient balance',
-        'service_unavailable' => 'Functionality unavailable for now'
+        'service_unavailable' => "Fonctionnalité indisponible pour l'instant",
+        'mesomb' => [
+            'server_error' => "Un problème s'est produit. Veuillez réessayer !",
+        ]
     ],
     'service' => [
         'subscribe' => 'Subscription',
@@ -31,5 +33,4 @@ return [
     'miscellaneous' => [
         'otp_message' => 'The OTP code needed for the password reset operation can be found below'
     ]
-
 ];
