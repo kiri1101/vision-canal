@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'success' => [
         'authorization_token' => "Le jeton d'autorisation fut généré avec succès",
         'default_response' => "L'operation fut un succès",
@@ -20,6 +19,11 @@ return [
             'user_account_exists' => 'Il existe un compte avec ce numéro de téléphone',
             'insufficient_balance' => 'Solde insuffisant',
             'service_unavailable' => 'Fonctionaliter indisponible pour le moment'
+        ],
+        'insufficient_balance' => 'Solde insuffisant',
+        'service_unavailable' => 'Functionality unavailable for now',
+        'mesomb' => [
+            'server_error' => 'Something went wrong. Please kindly try again!',
         ]
     ],
     'service' => [
@@ -31,5 +35,4 @@ return [
     'miscellaneous' => [
         'otp_message' => "Le code OTP nécessaire pour l'opération de réinitialisation du mot de passe est indiqué ci-dessous"
     ]
-
 ];

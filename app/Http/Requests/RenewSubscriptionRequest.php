@@ -73,7 +73,7 @@ class RenewSubscriptionRequest extends FormRequest
 
                 if (!$payment->success) {
                     // Fire some event, Pay someone, Alert user
-                    return $this->errorResponse('operation failed. Please try again');
+                    return $this->errorResponse(Lang::get('messages.error.mesomb.server_error', [], 'en'));
                 }
             }
 
@@ -111,6 +111,34 @@ class RenewSubscriptionRequest extends FormRequest
             DB::commit();
 
             return $this->successResponse(Lang::get('messages.success.subscription_saved', [], 'en'), []);
+        } catch (InvalidClientRequestException $e) {
+            Log::critical($e->getMessage(), [
+                'code' => $e->getCode(),
+                'trace' => $e
+            ]);
+
+            return $this->errorResponse($e->getMessage());
+        } catch (PermissionDeniedException $e) {
+            Log::critical($e->getMessage(), [
+                'code' => $e->getCode(),
+                'trace' => $e
+            ]);
+
+            return $this->errorResponse($e->getMessage());
+        } catch (ServerException $e) {
+            Log::critical($e->getMessage(), [
+                'code' => $e->getCode(),
+                'trace' => $e
+            ]);
+
+            return $this->errorResponse($e->getMessage());
+        } catch (ServiceNotFoundException $e) {
+            Log::critical($e->getMessage(), [
+                'code' => $e->getCode(),
+                'trace' => $e
+            ]);
+
+            return $this->errorResponse($e->getMessage());
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -119,34 +147,7 @@ class RenewSubscriptionRequest extends FormRequest
                 'trace' => $e
             ]);
 
-            return $this->errorResponse('operation failed');
-        } catch (InvalidClientRequestException $e) {
-            Log::critical($e->getMessage(), [
-                'code' => $e->getCode(),
-                'trace' => $e
-            ]);
-
-            return $this->errorResponse('operation failed');
-        } catch (PermissionDeniedException $e) {
-            Log::critical($e->getMessage(), [
-                'code' => $e->getCode(),
-                'trace' => $e
-            ]);
-
-            return $this->errorResponse('operation failed');
-        } catch (ServerException $e) {
-            Log::critical($e->getMessage(), [
-                'code' => $e->getCode(),
-                'trace' => $e
-            ]);
-
-            return $this->errorResponse('operation failed');
-        } catch (ServiceNotFoundException $e) {
-            Log::critical($e->getMessage(), [
-                'trace' => $e
-            ]);
-
-            return $this->errorResponse('operation failed');
+            return $this->errorResponse(Lang::get('messages.error.mesomb.server_error', [], 'en'));
         }
     }
 
