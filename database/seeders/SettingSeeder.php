@@ -15,6 +15,10 @@ class SettingSeeder extends Seeder
     {
         DB::table('settings')->insert([
             'home_page_video' => 'https://www.youtube.com/embed/7ElaIUQyGR4',
+            'subscribe_banner' => env('APP_URL') . '/assets/settings/abonnement.jpeg',
+            'resubscribe_banner' => env('APP_URL') . '/assets/settings/reabonnement.jpeg',
+            'accessory_banner' => env('APP_URL') . '/assets/settings/accessoires.jpeg',
+            'technician_banner' => env('APP_URL') . '/assets/settings/technicien.jpeg',
             'created_at' => now(),
             'updated_at' => now()
         ]);

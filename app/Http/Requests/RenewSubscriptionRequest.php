@@ -9,17 +9,13 @@ use App\Models\Transaction;
 use Illuminate\Support\Str;
 use App\Http\Traits\Helpers;
 use App\Models\PaymentMethod;
-use App\Models\RenewSubscription;
-use Hachther\MeSomb\Exceptions\InvalidClientRequestException;
-use Hachther\MeSomb\Exceptions\PermissionDeniedException;
-use Hachther\MeSomb\Exceptions\ServerException;
-use Hachther\MeSomb\Exceptions\ServiceNotFoundException;
+use MeSomb\Operation\PaymentOperation;
+use MeSomb\Util\RandomGenerator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Foundation\Http\FormRequest;
-use Hachther\MeSomb\Operation\Payment\Collect;
 
 class RenewSubscriptionRequest extends FormRequest
 {
@@ -40,18 +36,26 @@ class RenewSubscriptionRequest extends FormRequest
      */
     public function rules(): array
     {
-        return $this->conditionalValidation();
+        return [
+            'identifier' => 'required|exists:users,uuid',
+            'decoder' => 'required|string|size:14',
+            'name' => 'required|string',
+            'formula' => 'required|exists:categories,uuid',
+            'duration' => 'required|string|numeric',
+            'phone' => 'required|string',
+            'method' => 'required|exists:payment_methods,uuid',
+            'amount' => 'required|numeric|integer',
+            'option' => strlen($this->input('option')) > 0 ? 'required|exists:categories,uuid' : ''
+        ];
     }
 
     public function store(): JsonResponse
     {
-        DB::beginTransaction();
-
         $user = User::userByUUID($this->input('identifier'))->first();
         $admin = User::superAdmin()->first();
         $paymentMethod = PaymentMethod::searchByUUID($this->input('method'))->first();
         $formula = Category::categoryByUUID($this->input('formula'))->first();
-        $option = strlen($this->input('option')) > 0 ? Category::categoryByUUID($this->input('option'))->first() : '';
+        $option = strlen($this->input('option')) > 0 ? Category::categoryByUUID($this->input('option'))->value('id') : null;
         $amount = env('APP_DEBUG') ? env('MESOMB_TEST_AMOUNT') : (int) $this->input('amount');
         $phone = env('APP_DEBUG') ? env('MESOMB_DEV_TEST_NUMBER') : $this->removeSpaceBetweenStringChar($this->input('phone'));
 
@@ -67,83 +71,36 @@ class RenewSubscriptionRequest extends FormRequest
                 }
             } else {
                 // Add MTN && Orange shortCode to respective payment Methods in DB
-                $request = new Collect($phone, $amount, $paymentMethod->short_code, 'CM', 'XAF', false);
+                $client = new PaymentOperation(env('MESOMB_APP_KEY'), env('MESOMB_ACCESS_KEY'), env('MESOMB_SECRET_KEY'));
+                // Generate uuid string
+                $transactionId = Str::uuid();
+                // initiate collect transaction
+                $response = $client->makeCollect([
+                    'amount' => $amount,
+                    'service' => $paymentMethod->short_code,
+                    'payer' => $phone,
+                    'nonce' => RandomGenerator::nonce(),
+                    'trxID' => $transactionId
+                ]);
 
-                $payment = $request->pay();
+                info('start transaction: ', [
+                    'transactionId' => $transactionId,
+                    'trace' => $response
+                ]);
 
-                if (!$payment->success) {
-                    // Fire some event, Pay someone, Alert user
-                    return $this->errorResponse(Lang::get('messages.error.mesomb.server_error', [], 'en'));
-                }
+                // if (!$payment->success) {
+                //     // Fire some event, Pay someone, Alert user
+                //     return $this->errorResponse(Lang::get('messages.error.mesomb.server_error', [], 'en'));
+                // }
             }
 
-            // Create transaction record
-            DB::transaction(function () use ($paymentMethod, $user, $admin, $formula, $option) {
-                return tap(Transaction::create([
-                    'uuid' => Str::uuid(),
-                    'type' => 2,
-                    'amount' => trim($this->input('amount')),
-                    'commission' => 0.00,
-                    'method_id' => $paymentMethod->id,
-                    'sender_id' => $user->id, // sender user id
-                    'sender_account' => $user->account()->value('id'),
-                    'sender_account_balance' => $paymentMethod->id === 1 ? $user->account->balance : 0.00,
-                    'receiver_id' => 1, // receiver user id
-                    'receiver_account' => 1,
-                    'receiver_account_balance' =>  $admin->account->balance
-                ]), function (Transaction $transaction) use ($user, $formula, $option, $paymentMethod) {
-                    $transaction->renewSubscription()->create([
-                        'uuid' => Str::uuid(),
-                        'user_id' => $user->id,
-                        'decoder' => trim($this->input('decoder')),
-                        'name' => trim($this->input('name')),
-                        'formula_id' => $formula->id,
-                        'option_id' => strlen($this->input('option')) > 0 ? $option->id : null,
-                        'duration' => trim($this->input('duration')),
-                        'phone' => trim($this->input('phone')),
-                        'method_id' => $paymentMethod->id,
-                        'amount' => trim($this->input('amount'))
-                    ]);
-                });
-            });
+            // $this->recordTransaction($paymentMethod, $user, $admin, $formula, $option);
 
-            // inform admin through event
-            DB::commit();
-
-            return $this->successResponse(Lang::get('messages.success.subscription_saved', [], 'en'), []);
-        } catch (InvalidClientRequestException $e) {
-            Log::critical($e->getMessage(), [
-                'code' => $e->getCode(),
-                'trace' => $e
-            ]);
-
-            return $this->errorResponse($e->getMessage());
-        } catch (PermissionDeniedException $e) {
-            Log::critical($e->getMessage(), [
-                'code' => $e->getCode(),
-                'trace' => $e
-            ]);
-
-            return $this->errorResponse($e->getMessage());
-        } catch (ServerException $e) {
-            Log::critical($e->getMessage(), [
-                'code' => $e->getCode(),
-                'trace' => $e
-            ]);
-
-            return $this->errorResponse($e->getMessage());
-        } catch (ServiceNotFoundException $e) {
-            Log::critical($e->getMessage(), [
-                'code' => $e->getCode(),
-                'trace' => $e
-            ]);
-
-            return $this->errorResponse($e->getMessage());
+            return $this->successResponse(Lang::get('messages.success.subscription_saved', [], 'en'), ['transactionKey' => $transactionId]);
         } catch (Exception $e) {
-            DB::rollBack();
-
             Log::critical($e->getMessage(), [
                 'code' => $e->getCode(),
+                'message' => 'Internal Error',
                 'trace' => $e
             ]);
 
@@ -151,22 +108,36 @@ class RenewSubscriptionRequest extends FormRequest
         }
     }
 
-    private function conditionalValidation(): array
+    private function recordTransaction(object $paymentMethod, object $user, object $admin, object $formula, int|null $option): array
     {
-        $output = [
-            'identifier' => 'required|exists:users,uuid',
-            'decoder' => 'required|string|size:14',
-            'name' => 'required|string',
-            'formula' => 'required|exists:categories,uuid',
-            'duration' => 'required|string|numeric',
-            'phone' => 'required|string',
-            'method' => 'required|exists:payment_methods,uuid',
-            'amount' => 'required|numeric|integer'
-        ];
-
-        if (strlen($this->input('option')) > 0) {
-            $output['option'] = 'required|exists:categories,uuid';
-        }
-        return $output;
+        // Create transaction record
+        return DB::transaction(function () use ($paymentMethod, $user, $admin, $formula, $option) {
+            return tap(Transaction::create([
+                'uuid' => Str::uuid(),
+                'type' => 2,
+                'amount' => trim($this->input('amount')),
+                'commission' => 0.00,
+                'method_id' => $paymentMethod->id,
+                'sender_id' => $user->id, // sender user id
+                'sender_account' => $user->account()->value('id'),
+                'sender_account_balance' => $paymentMethod->id === 1 ? $user->account->balance : 0.00,
+                'receiver_id' => 1, // receiver user id
+                'receiver_account' => 1,
+                'receiver_account_balance' =>  $admin->account->balance
+            ]), function (Transaction $transaction) use ($user, $formula, $option, $paymentMethod) {
+                $transaction->renewSubscription()->create([
+                    'uuid' => Str::uuid(),
+                    'user_id' => $user->id,
+                    'decoder' => trim($this->input('decoder')),
+                    'name' => trim($this->input('name')),
+                    'formula_id' => $formula->id,
+                    'option_id' => $option,
+                    'duration' => trim($this->input('duration')),
+                    'phone' => trim($this->input('phone')),
+                    'method_id' => $paymentMethod->id,
+                    'amount' => trim($this->input('amount'))
+                ]);
+            });
+        });
     }
 }
