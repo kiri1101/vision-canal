@@ -71,6 +71,12 @@ trait Helpers
     public function searchAccount(String $query, String $type = 'email')
     {
         $token = '';
+        $param = [
+            'numabo' => $type === 'abonner' ? $query : '',
+            'numdecabo' => $type === 'decoder' ? $query : '',
+            'emailabo' => $type === 'email' ? $query : '',
+            'telabo' => $type === 'phone' ? $query : '',
+        ];
 
         try {
             $authResponse = $this->fujiAuth();
@@ -80,19 +86,9 @@ trait Helpers
             } else {
                 $token = $authResponse->data->token;
 
-                Log::info('account search parameters: ', [
-                    'numabo' => $type === 'abonner' ? $query : '',
-                    'numdecabo' => $type === 'decoder' ? $query : '',
-                    'emailabo' => $type === 'email' ? $query : '',
-                    'telabo' => $type === 'phone' ? $query : '',
-                ]);
+                Log::info('account search parameters: ', $param);
 
-                $response = Http::withToken($token)->connectTimeout(env('API_TIMEOUT'))->post(env('PARTNER_URL') . env('PARTNER_SEARCH_SUBSCRIBER_URI'), [
-                    'numabo' => $type === 'abonner' ? $query : '',
-                    'numdecabo' => $type === 'decoder' ? $query : '',
-                    'emailabo' => $type === 'email' ? $query : '',
-                    'telabo' => $type === 'phone' ? '00237' . $query : ''
-                ]);
+                $response = Http::withToken($token)->connectTimeout(env('API_TIMEOUT'))->post(env('PARTNER_URL') . env('PARTNER_SEARCH_SUBSCRIBER_URI'), $param);
 
                 Log::info('account search response: ', [
                     'data' => $response->object()
@@ -111,16 +107,15 @@ trait Helpers
 
     private function fujiAuth()
     {
-        try {
-            Log::info('partner authentication parameters: ', [
-                'username' => env('PARTNER_PSEUDO'),
-                'password' => env('PARTNER_PWD')
-            ]);
+        $param = [
+            'username' => env('PARTNER_PSEUDO'),
+            'password' => env('PARTNER_PWD')
+        ];
 
-            $response = Http::connectTimeout(env('API_TIMEOUT'))->post(env('PARTNER_URL') . env('PARTNER_AUTH_URI'), [
-                'username' => env('PARTNER_PSEUDO'),
-                'password' => env('PARTNER_PWD')
-            ]);
+        try {
+            Log::info('partner authentication parameters: ', $param);
+
+            $response = Http::connectTimeout(env('API_TIMEOUT'))->post(env('PARTNER_URL') . env('PARTNER_AUTH_URI'), $param);
 
             Log::info('account search response: ', [
                 'data' => $response->object()

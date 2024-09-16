@@ -34,6 +34,14 @@ class CategorySeeder extends Seeder
             [
                 'uuid' => Str::uuid(),
                 'name' => 'Access plus',
+                'fee' => 17000,
+                'is_special' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'uuid' => Str::uuid(),
+                'name' => 'Evasion plus',
                 'fee' => 22500,
                 'is_special' => false,
                 'created_at' => now(),
@@ -41,9 +49,9 @@ class CategorySeeder extends Seeder
             ],
             [
                 'uuid' => Str::uuid(),
-                'name' => 'Charm',
-                'fee' => 9000,
-                'is_special' => true,
+                'name' => 'Tout Canal',
+                'fee' => 45000,
+                'is_special' => false,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]
