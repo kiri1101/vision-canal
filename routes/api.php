@@ -21,38 +21,6 @@ use MeSomb\Util\RandomGenerator;
 |
 */
 
-Route::post('collect-payment', function (Request $request) {
-    // return response()->json(['foo is bar', $request->all()]);
-    // Add MTN && Orange shortCode to respective payment Methods in DB
-    $client = new PaymentOperation(env('MESOMB_APP_KEY'), env('MESOMB_ACCESS_KEY'), env('MESOMB_SECRET_KEY'));
-    // Generate uuid string
-    $transactionId = Str::uuid();
-    // initiate collect transaction
-    info('transaction id: ', ['id' => $transactionId]);
-
-    $response = $client->makeCollect([
-        'amount' => $request->input('amount'),
-        'service' => 'ORANGE',
-        'payer' => $request->input('phone'),
-        'fees' => false,
-        'nonce' => RandomGenerator::nonce(),
-        'trxID' => $transactionId
-    ]);
-
-    return response()->json([
-        'transactionId' => $transactionId,
-        'response' => $response
-    ]);
-});
-
-Route::post('check-transaction', function (Request $request) {
-    $client = new PaymentOperation(env('MESOMB_APP_KEY'), env('MESOMB_ACCESS_KEY'), env('MESOMB_SECRET_KEY'));
-
-    $transactions = $client->getTransactions([$request->input('transactionId')], 'EXTERNAL');
-
-    return response()->json([$transactions]);
-});
-
 Route::controller(AuthController::class)->middleware(['auth.token'])->prefix('auth')->group(function () {
     Route::post('login', 'loginUser');
     Route::post('register', 'createNewUser');
