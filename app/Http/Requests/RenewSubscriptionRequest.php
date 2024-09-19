@@ -64,10 +64,11 @@ class RenewSubscriptionRequest extends FormRequest
             if ($paymentMethod->id === 1) {
                 // check if $balance < $amount
                 if ($user->account->balance < $amount) {
-                    return $this->errorResponse(Lang::get('messages.error.insufficient_balance', [], 'en'));
+                    $redirect = $this->errorResponse(Lang::get('messages.error.insufficient_balance', [], 'en'));
                 } else {
                     // Deduct funds form user account
                     $user->account()->decrement('balance', $amount);
+                    $redirect = $this->successResponse(Lang::get('messages.success.subscription_saved', [], 'en'));
                 }
             } else {
                 // Add MTN && Orange shortCode to respective payment Methods in DB
@@ -75,28 +76,20 @@ class RenewSubscriptionRequest extends FormRequest
                 // Generate uuid string
                 $transactionId = Str::uuid();
                 // initiate collect transaction
-                $response = $client->makeCollect([
+                $client->makeCollect([
                     'amount' => $amount,
                     'service' => $paymentMethod->short_code,
                     'payer' => $phone,
+                    'fees' => false,
                     'nonce' => RandomGenerator::nonce(),
                     'trxID' => $transactionId
                 ]);
 
-                info('start transaction: ', [
-                    'transactionId' => $transactionId,
-                    'trace' => $response
-                ]);
+                $this->recordTransaction($paymentMethod, $user, $admin, $formula, $option, $transactionId);
 
-                // if (!$payment->success) {
-                //     // Fire some event, Pay someone, Alert user
-                //     return $this->errorResponse(Lang::get('messages.error.mesomb.server_error', [], 'en'));
-                // }
+                $redirect = $this->successResponse(Lang::get('messages.success.subscription_saved', [], 'en'));
             }
-
-            // $this->recordTransaction($paymentMethod, $user, $admin, $formula, $option);
-
-            return $this->successResponse(Lang::get('messages.success.subscription_saved', [], 'en'), ['transactionKey' => $transactionId]);
+            return $redirect;
         } catch (Exception $e) {
             Log::critical($e->getMessage(), [
                 'code' => $e->getCode(),
@@ -108,12 +101,12 @@ class RenewSubscriptionRequest extends FormRequest
         }
     }
 
-    private function recordTransaction(object $paymentMethod, object $user, object $admin, object $formula, int|null $option): array
+    private function recordTransaction(object $paymentMethod, object $user, object $admin, object $formula, int|null $option, $transactionID): array
     {
         // Create transaction record
-        return DB::transaction(function () use ($paymentMethod, $user, $admin, $formula, $option) {
+        return DB::transaction(function () use ($paymentMethod, $user, $admin, $formula, $option, $transactionID) {
             return tap(Transaction::create([
-                'uuid' => Str::uuid(),
+                'uuid' => $transactionID,
                 'type' => 2,
                 'amount' => trim($this->input('amount')),
                 'commission' => 0.00,
@@ -124,9 +117,9 @@ class RenewSubscriptionRequest extends FormRequest
                 'receiver_id' => 1, // receiver user id
                 'receiver_account' => 1,
                 'receiver_account_balance' =>  $admin->account->balance
-            ]), function (Transaction $transaction) use ($user, $formula, $option, $paymentMethod) {
+            ]), function (Transaction $transaction) use ($user, $formula, $option, $paymentMethod, $transactionID) {
                 $transaction->renewSubscription()->create([
-                    'uuid' => Str::uuid(),
+                    'uuid' => $transactionID,
                     'user_id' => $user->id,
                     'decoder' => trim($this->input('decoder')),
                     'name' => trim($this->input('name')),

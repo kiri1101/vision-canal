@@ -3,8 +3,12 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\SubscriptionController;
 use App\Http\Controllers\Api\SupportController;
+use App\Http\Controllers\CheckPaymentStatusController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
+use MeSomb\Operation\PaymentOperation;
+use MeSomb\Util\RandomGenerator;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +47,8 @@ Route::middleware(['auth.token', 'auth:sanctum'])->group(function () {
     });
 
     Route::post('users/{user:uuid}/logout', [AuthController::class, 'logoutUser']);
+
+    Route::post('payment/check-status', CheckPaymentStatusController::class);
 });
 
 // require __DIR__ . '/setting.php';
