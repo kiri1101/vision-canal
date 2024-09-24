@@ -16,7 +16,7 @@ class ServiceSeeder extends Seeder
         DB::table('services')->insert([
             [
                 'name' => 'services.renew_subscription',
-                'banner_path' => env('APP_URL') . '/services/reabonnements.jpeg',
+                'banner_path' => env('APP_URL') . '/services/reabonnement.jpeg',
                 'route_name' => 'renew.subscription',
                 'alt' => 'Renew Subscription service profile picture',
                 'created_at' => now(),
@@ -24,7 +24,7 @@ class ServiceSeeder extends Seeder
             ],
             [
                 'name' => 'services.subscription',
-                'banner_path' => env('APP_URL') . '/services/abonnements.jpeg',
+                'banner_path' => env('APP_URL') . '/services/abonnement.jpeg',
                 'route_name' => 'subscription.new',
                 'alt' => 'Subscription service profile picture',
                 'created_at' => now(),
