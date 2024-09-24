@@ -1,0 +1,106 @@
+{
+    "data": {
+        "pending": {
+            "pk": "e830f5de-808b-4844-b36f-ff6ede55394b",
+            "status": "STARTED",
+            "type": "PAYMENT",
+            "amount": 97,
+            "fees": 3,
+            "b_party": "237698377389",
+            "message": "By Vision Canal",
+            "service": "ORANGE",
+            "reference": "9baaddff-159a-42fc-8038-57215e91cf86",
+            "ts": {
+                "date": "2024-09-18 22:57:31.937916",
+                "timezone_type": 2,
+                "timezone": "Z"
+            },
+            "country": "CM",
+            "currency": "XAF",
+            "fin_trx_id": null,
+            "trxamount": 100,
+            "customer": null,
+            "location": null,
+            "products": []
+        },
+        "success": {
+            "pk": "2959e909-1cdf-4ded-a99b-95394742f249",
+            "status": "SUCCESS",
+            "type": "PAYMENT",
+            "amount": 97,
+            "fees": 3,
+            "b_party": "237698377389",
+            "message": "By Vision Canal",
+            "service": "ORANGE",
+            "reference": "67aa5c37-6d48-42ad-a9dd-9618dd373456",
+            "ts": {
+                "date": "2024-09-18 23:08:44.000000",
+                "timezone_type": 2,
+                "timezone": "Z"
+            },
+            "country": "CM",
+            "currency": "XAF",
+            "fin_trx_id": "MP240919.0008.D00715",
+            "trxamount": 100,
+            "customer": null,
+            "location": null,
+            "products": []
+        },
+        "failed": {
+            "pk": "e830f5de-808b-4844-b36f-ff6ede55394b",
+            "status": "FAILED",
+            "type": "PAYMENT",
+            "amount": 97,
+            "fees": 3,
+            "b_party": "237698377389",
+            "message": "By Vision Canal",
+            "service": "ORANGE",
+            "reference": "9baaddff-159a-42fc-8038-57215e91cf86",
+            "ts": {
+                "date": "2024-09-18 23:03:26.000000",
+                "timezone_type": 2,
+                "timezone": "Z"
+            },
+            "country": "CM",
+            "currency": "XAF",
+            "fin_trx_id": "MP240918.2357.B03945",
+            "trxamount": 100,
+            "customer": null,
+            "location": null,
+            "products": []
+        },
+        "immediate-confirm": {
+            "transactionId": "67aa5c37-6d48-42ad-a9dd-9618dd373456",
+            "response": {
+                "success": true,
+                "message": "The payment has been successfully done!",
+                "redirect": "https://visionscanal.com/",
+                "transaction": {
+                    "pk": "2959e909-1cdf-4ded-a99b-95394742f249",
+                    "status": "STARTED",
+                    "type": "PAYMENT",
+                    "amount": 97,
+                    "fees": 3,
+                    "b_party": "237698377389",
+                    "message": "By Vision Canal",
+                    "service": "ORANGE",
+                    "reference": "67aa5c37-6d48-42ad-a9dd-9618dd373456",
+                    "ts": {
+                        "date": "2024-09-18 23:08:15.287685",
+                        "timezone_type": 2,
+                        "timezone": "Z"
+                    },
+                    "country": "CM",
+                    "currency": "XAF",
+                    "fin_trx_id": null,
+                    "trxamount": 100,
+                    "customer": null,
+                    "location": null,
+                    "products": []
+                },
+                "reference": "",
+                "status": "SUCCESS"
+            }
+        }
+    }
+}
