@@ -16,7 +16,7 @@ class ServiceSeeder extends Seeder
         DB::table('services')->insert([
             [
                 'name' => 'services.renew_subscription',
-                'banner_path' => 'https://visionscanal.com/img/reabonnements.jpeg',
+                'banner_path' => env('APP_URL') . '/services/reabonnements.jpeg',
                 'route_name' => 'renew.subscription',
                 'alt' => 'Renew Subscription service profile picture',
                 'created_at' => now(),
@@ -24,7 +24,7 @@ class ServiceSeeder extends Seeder
             ],
             [
                 'name' => 'services.subscription',
-                'banner_path' => 'https://visionscanal.com/img/abonnements.jpeg',
+                'banner_path' => env('APP_URL') . '/services/abonnements.jpeg',
                 'route_name' => 'subscription.new',
                 'alt' => 'Subscription service profile picture',
                 'created_at' => now(),
@@ -32,7 +32,7 @@ class ServiceSeeder extends Seeder
             ],
             [
                 'name' => 'services.accessory',
-                'banner_path' => 'https://visionscanal.com/img/shop.jpg',
+                'banner_path' => env('APP_URL') . '/services/shop.jpg',
                 'route_name' => 'accessory',
                 'alt' => 'Accessory service profile picture',
                 'created_at' => now(),
@@ -40,7 +40,7 @@ class ServiceSeeder extends Seeder
             ],
             [
                 'name' => 'services.support',
-                'banner_path' => 'https://visionscanal.com/img/technic.JPG',
+                'banner_path' => env('APP_URL') . '/services/technic.jpg',
                 'route_name' => 'support',
                 'alt' => 'Technical support service profile picture',
                 'created_at' => now(),

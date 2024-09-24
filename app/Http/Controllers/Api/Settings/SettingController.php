@@ -67,7 +67,7 @@ class SettingController extends BaseController
                 'whatsappLink' => is_null($setting->whatsapp) ? '' : $setting->whatsapp,
                 'facebookLink' => is_null($setting->facebook) ? '' : $setting->facebook,
                 'instagramLink' => is_null($setting->instagram) ? '' : $setting->instagram
-            ]),
+            ])->first(),
             'articles' => Article::all()->map(fn($article) => [
                 'id' => $article->uuid,
                 'article_pic_url' => $article->img_path,
