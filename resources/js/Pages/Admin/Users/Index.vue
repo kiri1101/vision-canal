@@ -44,6 +44,7 @@
                             <Column field="full_name" header="Name" sortable style="min-width: 16rem"></Column>
                             <Column field="role.name" header="Role" sortable style="min-width: 5rem">
                             </Column>
+                            <Column field="account" header="Balance/FCFA" sortable style="min-width: 12rem"></Column>
                             <Column field="mail" header="Email" sortable style="min-width: 12rem"></Column>
                             <Column field="phone_number" header="Tel" sortable style="min-width: 12rem"></Column>
                             <Column field="home_address" header="Address" sortable style="min-width: 12rem"></Column>
