@@ -27,7 +27,7 @@ class UserResource extends JsonResource
             // 'referrer_code' => $this->isParamNull($this->profile->promo_code),
             'religion' => $this->isParamNull($this->profile->religion),
             'profile_path' => $this->isParamNull($this->profile->profile_photo_url),
-            'account' => $this->account->balance,
+            'account' => (int) $this->account->balance,
             'created' => $this->created_at->format('d/m/Y \a H:i')
         ];
     }
